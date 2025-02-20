@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit List Template</title>
+    <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
+
+</head>
+
+
+<body>
+
+<div class="container">
+    <aside class="sidebar">
+        <div class="admin-logo-container">
+            <img src="{% static 'apps/images/logo.png' %}" alt="e-English logotipi" class="admin-logo">
+        </div>
+        <ul>
+            <li><a href="{% url 'admin-book-list' %}"><h1>Books</h1></a></li>
+        </ul>
+        <ul>
+            <li><a href="{% url 'admin-unit-list' %}"><h1>Units</h1></a></li>
+        </ul>
+    </aside>
+    <main class="main-content">
+    
+        <div class="header">
+            <input type="text" placeholder="Problem title" class="search-input">
+            {% if messages %}
+            	{% for message in messages %}
+            		<h3 style="color: red">{{ message }}</h3>
+            	{% endfor %}
+            	
+            {% endif %} 
+            <button class="add-btn" id="open-modal-btn">Qo'shish</button>
+        </div>
+        <div class="table">
+            <div class="table-row header-row">
+                <div class="column">#</div>
+                <div class="column">Name</div>
+                <div class="column">Level</div>
+                <div class="column">Actions</div>
+            </div>
+        </div>
+        <div class="table">
+            {% for book in books %}
+                <div class="table-row">
+                    <div class="column">{{ book.id }}</div>
+                    <div class="column" data-title="{{ book.name }}">{{ book.name }}</div>
+                    <div class="column" data-title="{{ book.level }}">{{ book.level }}</div>
+                    <div class="column">
+                        <button class="action-btn edit" title="Edit"></button>
+                        <form action="{% url 'admin-book-delete' book.pk %}" method="post">
+                            {% csrf_token %}
+                            <button class="action-btn delete" type="submit" title="Delete"></button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+        </div>
+
+    </main>
+
+</div>
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>Kitob qo’shish</h2>
+        <form action="{% url 'admin-book-create' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="book-name">Nomi</label>
+            <input type="text" id="book-name" name="name" placeholder="Nomi">
+            <label for="level">Daraja</label>
+            <input type="number" id="Level" name="level" placeholder="Level">
+            <label for="level">Rasm</label>
+            <input type="file" id="Level" name="image" placeholder="Image">
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="close-modal-btn">Orqaga</button>
+                <button type="submit" class="submit-btn">Qo’shish</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal update -->
+<div class="modal" id="modal-update">
+    <div class="modal-content">
+        <h2>Kitob tahrirlash</h2>
+        <form action="{% url 'admin-book-update' 0 %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="book-name">Nomi</label>
+            <input type="text" id="book-update-name" name="name" placeholder="Nomi">
+            <label for="level">Daraja</label>
+            <input type="number" id="book-update-level" name="level" placeholder="Level">
+            <label for="level">Rasm</label>
+            <input type="file" id="Level" name="image" placeholder="Image">
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="close-modal-btn">Orqaga</button>
+                <button type="submit" class="submit-btn">Yangilash</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'admin/js/script.js' %}"></script>
+
+</body>
+</html>

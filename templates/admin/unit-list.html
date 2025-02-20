@@ -1,0 +1,163 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit List Template</title>
+    <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+    <aside class="sidebar">
+        <div class="admin-logo-container">
+            <img src="{% static 'apps/images/logo.png' %}" alt="e-English logotipi" class="admin-logo">
+        </div>
+        <ul>
+            <li><a href="{% url 'admin-book-list' %}"><h1>Books</h1></a></li>
+        </ul>
+        <ul>
+            <li><a href="{% url 'admin-unit-list' %}"><h1>Units</h1></a></li>
+        </ul>
+    </aside>
+    <main class="main-content">
+        <div class="header">
+            <input type="text" placeholder="Problem title" class="search-input">
+            {% if messages %}
+                {% for message in messages %}
+                    <h3 style="color: red">{{ message }}</h3>
+                {% endfor %}
+            {% endif %}
+            <button class="add-btn" id="open-unit-modal-btn">Qo'shish</button>
+        </div>
+        <div class="table">
+            <div class="table-row header-row">
+                <div class="column">#</div>
+                <div class="column">Name</div>
+                <div class="column">Book</div>
+                <div class="column">Actions</div>
+            </div>
+        </div>
+        <div class="table">
+            {% for unit in units %}
+                <div class="table-row">
+                    <div class="column">{{ unit.pk }}</div>
+                    <div class="column" data-title="{{ unit.unit_num }}">Unit-{{ unit.unit_num }}</div>
+                    <div class="column">{{ unit.book.name }}-{{ unit.book.level }}</div>
+                    <div class="column">
+                        <!-- Edit button -->
+                        <button class="action-btn edit" title="Edit" data-id="{{ unit.pk }}" data-unit-num="{{ unit.unit_num }}" data-book-id="{{ unit.book.id }}">Edit</button>
+
+                        <!-- Delete button -->
+                        <form action="{% url 'admin-unit-delete' unit.pk %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="action-btn delete" type="submit" title="Delete">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<!-- Modal for Adding a New Unit -->
+<div class="modal" id="unit-modal">
+    <div class="modal-content">
+        <h2>Yangi Unit Qo’shish</h2>
+        <form action="{% url 'admin-unit-create' %}" method="post">
+            {% csrf_token %}
+            <label for="unit-number">Unit Number</label>
+            <input type="number" id="unit-number" name="unit_num" placeholder="Unit Number" required>
+            <label for="book-select">Kitob</label>
+            <select id="book-select" name="book" required>
+                {% for book in books %}
+                    <option value="{{ book.id }}">{{ book.name }}{{ book.level }}</option>
+                {% endfor %}
+            </select>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="close-unit-modal-btn">Orqaga</button>
+                <button type="submit" class="submit-btn">Qo’shish</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Updating a Unit -->
+<div class="modal" id="modal-update">
+    <div class="modal-content">
+        <h2>Unit Tahrirlash</h2>
+        <form id="update-unit-form" action="" method="post">
+            {% csrf_token %}
+            <label for="unit-num">Unit Number</label>
+            <input type="number" id="unit-num" name="unit_num" placeholder="Unit Number" required>
+            <label for="book-select">Kitob</label>
+            <select id="book-select-update" name="book" required>
+                {% for book in books %}
+                    <option value="{{ book.id }}">{{ book.name }} - {{ book.level }}</option>
+                {% endfor %}
+            </select>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="close-update-modal-btn">Orqaga</button>
+                <button type="submit" class="submit-btn">Yangilash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{#<script src="{% static 'admin/js/script.js' %}"></script>#}
+<script>
+    // Open and close modal for adding a new unit
+    const unitModal = document.getElementById("unit-modal");
+    const openUnitModalBtn = document.getElementById("open-unit-modal-btn");
+    const closeUnitModalBtn = document.getElementById("close-unit-modal-btn");
+
+    openUnitModalBtn.addEventListener("click", () => {
+        unitModal.classList.add('show');
+    });
+
+    closeUnitModalBtn.addEventListener("click", () => {
+        unitModal.classList.remove("show");
+    });
+
+    // Open and close modal for updating an existing unit
+    const updateModal = document.getElementById("modal-update");
+    const closeUpdateModalBtn = document.getElementById("close-update-modal-btn");
+
+    document.querySelectorAll(".edit").forEach((editButton) => {
+        editButton.addEventListener("click", (event) => {
+            const unitId = event.target.dataset.id;
+            const unitNum = event.target.dataset.unitNum;
+            const bookId = event.target.dataset.bookId;
+
+            // Set the form action dynamically
+            const updateForm = document.getElementById("update-unit-form");
+            updateForm.action = `/admin2/panel/unit/update/${unitId}`;
+
+            // Set the form values
+            document.getElementById("unit-num").value = unitNum;
+            document.getElementById("book-select-update").value = bookId;
+
+            // Open the modal
+            updateModal.classList.add('show');
+        });
+    });
+
+    closeUpdateModalBtn.addEventListener("click", () => {
+        updateModal.classList.remove("show");
+    });
+
+    // Optional: Close modal when clicking outside the modal content
+    window.addEventListener("click", (event) => {
+        if (event.target === updateModal) {
+            updateModal.classList.remove("show");
+        }
+    });
+</script>
+
+</body>
+</html>
+
+
